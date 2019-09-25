@@ -12,11 +12,13 @@ import { EntryComponent } from './containers/holidays/entry/entry.component';
 import { SortFilterComponent } from './containers/holidays/sort-filter/sort-filter.component';
 import { EffectsModule } from '@ngrx/effects';
 import { AppEffects } from './effects/app.effects';
-import { SortFilterEffects } from './effects/sort-filtering.effects';
+import { SortFilterEffects } from './effects/sort-filter.effects';
 import { HttpClientModule } from '@angular/common/http';
 import { HolidaysEffects } from './effects/holidays.effects';
-import { FriendsListComponent } from './containers/friends/list/list.component';
-import { FriendEntryComponent } from './containers/friends/entry/entry.component';
+import { FriendListComponent } from './containers/friends/friend-list/friend-list.component';
+import { FriendEntryComponent } from './containers/friends/friend-entry/friend-entry.component';
+import { FriendEffects } from './effects/friends.effects';
+import { FriendGiftsComponent } from './containers/friend-gifts/friend-gifts.component';
 
 const routes: Routes = [
   {
@@ -50,15 +52,16 @@ const routes: Routes = [
     HolidaysComponent,
     FriendsComponent,
     ListComponent,
-    FriendsListComponent,
+    FriendListComponent,
     EntryComponent,
     FriendEntryComponent,
-    SortFilterComponent],
+    SortFilterComponent,
+    FriendGiftsComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature(featureName, reducers),
-    EffectsModule.forFeature([AppEffects, SortFilterEffects, HolidaysEffects]),
+    EffectsModule.forFeature([AppEffects, SortFilterEffects, HolidaysEffects, FriendEffects]),
     HttpClientModule
   ]
 })
