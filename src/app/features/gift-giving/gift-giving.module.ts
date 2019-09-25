@@ -22,6 +22,10 @@ import { FriendGiftsComponent } from './containers/friend-gifts/friend-gifts.com
 
 const routes: Routes = [
   {
+    path: 'gifts/friends/:id/holidays',
+    component: FriendGiftsComponent
+  },
+  {
     path: 'gifts',
     component: GiftGivingComponent,
     children: [
