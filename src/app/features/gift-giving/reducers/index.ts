@@ -2,6 +2,7 @@ export const featureName = 'giftGiving';
 import * as fromHolidays from './holidays.reducer';
 import * as fromUiHints from './ui-hints.reducer';
 import * as fromFriends from './friend.reducer';
+import * as fromFriendHoliday from './friend-holiday.reducer';
 import { createFeatureSelector, createSelector, ActionReducerMap } from '@ngrx/store';
 import { HolidayListItem, FriendHoliday } from '../models';
 import { FriendListItem } from '../containers/friends/models';
@@ -10,12 +11,14 @@ export interface GiftGivingState {
   holidays: fromHolidays.HolidayState;
   uiHints: fromUiHints.UiHintsState;
   friends: fromFriends.FriendState;
+  friendHoliday: fromFriendHoliday.FriendHolidayState;
 }
 
 export const reducers: ActionReducerMap<GiftGivingState> = {
   holidays: fromHolidays.reducer,
   uiHints: fromUiHints.reducer,
-  friends: fromFriends.reducer
+  friends: fromFriends.reducer,
+  friendHoliday: fromFriendHoliday.reducer
 };
 
 
@@ -26,6 +29,7 @@ const selectFeature = createFeatureSelector<GiftGivingState>(featureName);
 const selectHolidaysBranch = createSelector(selectFeature, b => b.holidays);
 const selectUiHintsBranch = createSelector(selectFeature, b => b.uiHints);
 const selectFriendsBranch = createSelector(selectFeature, b => b.friends);
+const selectFriendHolidaysBranch = createSelector(selectFeature, b => b.friendHoliday);
 // 'Helpers'
 const selectHolidayArray = createSelector(selectHolidaysBranch, fromHolidays.selectHolidayArray);
 export const selectShowAllHolidays = createSelector(selectUiHintsBranch, b => b.showAll);
@@ -33,6 +37,10 @@ export const selectSortingHolidaysBy = createSelector(selectUiHintsBranch, b => 
 export const selectFriendsArray = createSelector(selectFriendsBranch, fromFriends.selectFriendsArray);
 export const selectSelectedFriendId = createSelector(selectFriendsBranch, b => b.selectedFriend);
 export const selectFriendEntities = createSelector(selectFriendsBranch, fromFriends.selectFriendEntities);
+export const selectFriendHolidayEntities = createSelector(selectFriendHolidaysBranch, fromFriendHoliday.selectFriendHolidayEntities);
+
+export const selectFriendHolidayEntitesForSelectedFriend = createSelector(selectSelectedFriendId,
+  selectFriendHolidayEntities, (id, friends) => friends[id] ? friends[id].holidaysCelebrated : null);
 
 export const selectSelectedFriend = createSelector(selectSelectedFriendId, selectFriendEntities,
   (id, entities) => entities[id]);
@@ -84,12 +92,20 @@ export const selectFriendListItems = createSelector(selectFriendsArray, friends 
 export const selectFriendHolidayModel = createSelector(
   selectSelectedFriend,
   selectHolidayListItemsUnFiltered,
-  (friend, allHolidays) => {
+  selectFriendHolidayEntitesForSelectedFriend,
+  (friend, allHolidays, celebratedHolidays) => {
+    celebratedHolidays = celebratedHolidays || [];
+    const nonCelebrated = allHolidays
+      .filter(h => !celebratedHolidays.includes(h.id))
+      .map(h => ({ id: h.id, name: h.name }));
+    const celebrated = allHolidays
+      .filter(h => celebratedHolidays.includes(h.id))
+      .map(h => ({ id: h.id, name: h.name }));
     return ({
       id: friend.id,
       name: friend.name,
-      nonCelebratedHolidays: allHolidays.map(h => ({ id: h.id, name: h.name })),
-      celebratedHolidays: []
+      nonCelebratedHolidays: nonCelebrated,
+      celebratedHolidays: celebrated
     } as FriendHoliday);
   }
 );
